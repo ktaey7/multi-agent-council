@@ -38,6 +38,20 @@ def test_prompts_from_dir_empty_errors(tmp_path):
         mod.prompts_from_dir(tmp_path, None)
 
 
+def test_prompts_from_dir_missing_directory_errors(tmp_path):
+    mod = _load()
+    with pytest.raises(SystemExit):
+        mod.prompts_from_dir(tmp_path / "nope", None)
+
+
+def test_prompts_from_dir_returns_agent_order_for_shuffled_request(tmp_path):
+    mod = _load()
+    (tmp_path / "codex.md").write_text("c", encoding="utf-8")
+    (tmp_path / "grok.md").write_text("g", encoding="utf-8")
+    found = mod.prompts_from_dir(tmp_path, ["grok", "codex"])
+    assert list(found.keys()) == ["grok", "codex"]
+
+
 def test_prompts_dir_mode_stages_run(tmp_path):
     src = tmp_path / "round2"
     src.mkdir()

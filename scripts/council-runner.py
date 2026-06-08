@@ -116,6 +116,10 @@ def select_agents(raw: str, execute: bool) -> list[str]:
 
 
 def prompts_from_dir(prompts_dir: Path, agents: list[str] | None) -> dict[str, Path]:
+    if not prompts_dir.is_dir():
+        raise SystemExit(
+            f"--prompts-dir {prompts_dir} does not exist or is not a directory"
+        )
     found: dict[str, Path] = {}
     for agent in AGENT_ORDER:
         candidate = prompts_dir / f"{agent}.md"
@@ -336,7 +340,7 @@ def redact_command(cmd: list[str]) -> list[str]:
     return cmd
 
 
-def write_runbook(out: Path, agents: list[str], execute: bool, repo: Path) -> None:
+def write_runbook(out: Path, agents: list[str], execute: bool, repo: Path, source_prompts_dir: Path | None = None) -> None:
     lines = [
         "# Council Runbook",
         "",
@@ -347,7 +351,10 @@ def write_runbook(out: Path, agents: list[str], execute: bool, repo: Path) -> No
         "",
     ]
     for agent in agents:
-        lines.append(f"- `{agent}` prompt: `prompts/{agent}.md`")
+        if source_prompts_dir is not None:
+            lines.append(f"- `{agent}` prompt: `{source_prompts_dir}/{agent}.md`")
+        else:
+            lines.append(f"- `{agent}` prompt: `prompts/{agent}.md`")
         if execute:
             lines.append(f"  output: `outputs/{agent}.md`")
     lines.extend(
@@ -403,7 +410,6 @@ def main() -> int:
     out = output_dir(repo, args.out)
     prompts_dir = out / "prompts"
     outputs_dir = out / "outputs"
-    prompts_dir.mkdir(parents=True, exist_ok=True)
     outputs_dir.mkdir(parents=True, exist_ok=True)
 
     source_prompts_dir: Path | None = None
@@ -423,6 +429,7 @@ def main() -> int:
                 file=sys.stderr,
             )
             return 2
+        prompts_dir.mkdir(parents=True, exist_ok=True)
         prompt_paths = {}
         for agent in agents:
             prompt = build_prompt(agent, args.question, args.evidence, repo)
@@ -441,7 +448,7 @@ def main() -> int:
         "created_at": dt.datetime.now(dt.timezone.utc).isoformat(),
     }
 
-    write_runbook(out, agents, args.execute, repo)
+    write_runbook(out, agents, args.execute, repo, source_prompts_dir)
     write_comparison_template(out, agents)
 
     results: list[dict[str, object]] = []
