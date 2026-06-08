@@ -1,7 +1,13 @@
 # Multi-Agent Council Protocol
 
-Use this template when a maintainer wants independent agent review before a
-decision, merge, release, or incident conclusion.
+Use this template when a maintainer wants multiple agents to cross-check and
+debate a decision before a merge, release, architecture change, security review,
+or incident conclusion.
+
+The core idea is model diversity. Each agent may notice different constraints,
+make different mistakes, and reason from different tool behavior. The council
+keeps those differences useful by separating independent review from later
+comparison and counterfactual debate.
 
 ## Task
 
@@ -46,6 +52,9 @@ Suggested perspectives:
 ## Phase 1: Independent Reviews
 
 Each participant answers independently before seeing other reviews.
+
+Do not share other agents' answers in this phase. The point is to preserve
+independent judgment before synthesis.
 
 Prompt template:
 
@@ -98,6 +107,9 @@ Then summarize:
 - assumptions
 - missing evidence
 - decision options
+
+Do not treat majority agreement as correctness. Prefer the argument with the
+strongest evidence and the clearest failure-mode analysis.
 
 ## Phase 3: Dissent or Counterfactual Round
 

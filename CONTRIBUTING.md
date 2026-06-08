@@ -17,8 +17,9 @@ Contributions are welcome, especially:
 
 ## Development
 
-This repository is mostly Markdown. Run the scaffold script to verify examples:
+This repository is mostly Markdown. Run these checks before a PR:
 
 ```bash
-scripts/run-council.sh examples/pr-review.md
+scripts/print-council-prompt.sh examples/pr-review.md
+scripts/install-skill.sh --dry-run both
 ```

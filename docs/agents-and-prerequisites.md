@@ -59,6 +59,22 @@ Use one agent in separate passes:
 This is weaker than independent agents but still better than a single generic
 answer.
 
+## Why Multiple Agents?
+
+The council uses agents as independent reviewers, not interchangeable replicas.
+Different agents may vary in code navigation, long-context behavior, risk
+sensitivity, writing style, tool permissions, and tendency to overfit the first
+answer. The protocol preserves those differences through:
+
+- independent first-pass reviews
+- assigned perspectives
+- evidence labels
+- explicit blocking objections
+- counterfactual rounds
+- maintainer-owned decision records
+
+The value comes from cross-validation, not from averaging opinions.
+
 ## File Access Policy
 
 Do not give every tool the same file access by default.

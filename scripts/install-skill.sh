@@ -2,8 +2,37 @@
 set -euo pipefail
 
 usage() {
-  echo "usage: scripts/install-skill.sh codex|claude|both" >&2
+  cat >&2 <<'EOF'
+usage: scripts/install-skill.sh [--dry-run] [--uninstall] codex|claude|both
+
+Environment overrides:
+  CODEX_SKILLS_DIR   default: $HOME/.agents/skills
+  CLAUDE_SKILLS_DIR  default: $HOME/.claude/skills
+EOF
 }
+
+dry_run=0
+uninstall=0
+
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    --dry-run)
+      dry_run=1
+      shift
+      ;;
+    --uninstall)
+      uninstall=1
+      shift
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    *)
+      break
+      ;;
+  esac
+done
 
 if [ "$#" -ne 1 ]; then
   usage
@@ -12,23 +41,36 @@ fi
 
 target="$1"
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-skill_src="$repo_root/skills/multi-agent-council"
+skill_src="$repo_root/.agents/skills/multi-agent-council"
 
 if [ ! -f "$skill_src/SKILL.md" ]; then
   echo "skill source not found: $skill_src" >&2
   exit 1
 fi
 
+run() {
+  if [ "$dry_run" -eq 1 ]; then
+    printf 'dry-run:'
+    printf ' %q' "$@"
+    printf '\n'
+  else
+    "$@"
+  fi
+}
+
 install_one() {
   local app="$1"
+  local base
   local dest
 
   case "$app" in
     codex)
-      dest="$HOME/.codex/skills/multi-agent-council"
+      # Codex reads user skills from ~/.agents/skills and repo skills from
+      # .agents/skills. Override when testing or using a custom environment.
+      base="${CODEX_SKILLS_DIR:-$HOME/.agents/skills}"
       ;;
     claude)
-      dest="$HOME/.claude/skills/multi-agent-council"
+      base="${CLAUDE_SKILLS_DIR:-$HOME/.claude/skills}"
       ;;
     *)
       echo "unknown target: $app" >&2
@@ -36,9 +78,23 @@ install_one() {
       ;;
   esac
 
-  mkdir -p "$(dirname "$dest")"
-  rm -rf "$dest"
-  cp -R "$skill_src" "$dest"
+  dest="$base/multi-agent-council"
+
+  if [ "$uninstall" -eq 1 ]; then
+    run rm -rf "$dest"
+    echo "uninstalled $app skill: $dest"
+    return
+  fi
+
+  run mkdir -p "$base"
+  run rm -rf "$dest"
+  run cp -R "$skill_src" "$dest"
+
+  if [ "$dry_run" -eq 0 ] && [ ! -f "$dest/SKILL.md" ]; then
+    echo "install failed: $dest/SKILL.md was not created" >&2
+    exit 1
+  fi
+
   echo "installed $app skill: $dest"
 }
 
@@ -59,4 +115,6 @@ case "$target" in
     ;;
 esac
 
-echo "restart the target app or start a new session if the skill is not visible"
+if [ "$uninstall" -eq 0 ]; then
+  echo "restart the target app or start a new session if the skill is not visible"
+fi

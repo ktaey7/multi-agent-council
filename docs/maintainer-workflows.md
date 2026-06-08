@@ -3,6 +3,9 @@
 Multi-Agent Council is designed for maintainers, not generic brainstorming.
 These workflows keep agent output tied to a concrete repository decision.
 
+For the reasoning behind the cross-validation structure, see
+[research-foundation.md](research-foundation.md).
+
 ## Pull Request Review
 
 Use when a PR touches shared behavior, auth, security, data migration, public

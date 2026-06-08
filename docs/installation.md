@@ -7,6 +7,10 @@ three ways:
 2. Clone and run prompts manually.
 3. Copy prompts into web or app-based AI tools.
 
+This repository is not yet a full agent orchestrator. The installable skill
+teaches Codex or Claude Code how to run the council workflow; it does not
+automatically call every external agent.
+
 ## Install as a Skill
 
 Clone the repository:
@@ -37,15 +41,24 @@ scripts/install-skill.sh both
 The installer copies:
 
 ```text
-skills/multi-agent-council/
+.agents/skills/multi-agent-council/
 ```
 
 to one or both of:
 
 ```text
-~/.codex/skills/multi-agent-council/
+~/.agents/skills/multi-agent-council/
 ~/.claude/skills/multi-agent-council/
 ```
+
+Codex also discovers repo-scoped skills from `.agents/skills/` when you work
+inside a repository. After cloning this repository, Codex can use the
+repo-scoped skill without a global install. Use `/skills` or mention
+`$multi-agent-council`.
+
+The Codex user-skill directory follows the Codex agent skills convention:
+`$HOME/.agents/skills`. Set `CODEX_SKILLS_DIR` to override it. Set
+`CLAUDE_SKILLS_DIR` to override the Claude Code target.
 
 Restart the target app or start a new session if it does not pick up the skill
 immediately.
@@ -55,7 +68,7 @@ immediately.
 You can use the protocol without installing a skill:
 
 ```bash
-scripts/run-council.sh examples/pr-review.md
+scripts/print-council-prompt.sh examples/pr-review.md
 ```
 
 Then paste the generated prompt into Codex, Claude, Gemini, Grok, or another
@@ -84,6 +97,13 @@ scripts/check-prereqs.sh
 
 This only checks whether commands are present. Authentication still depends on
 each vendor's CLI.
+
+The installer supports a safe preview and uninstall:
+
+```bash
+scripts/install-skill.sh --dry-run both
+scripts/install-skill.sh --uninstall codex
+```
 
 ## Practical Expectations
 

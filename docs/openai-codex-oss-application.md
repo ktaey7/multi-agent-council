@@ -22,6 +22,9 @@ turning AI output into reusable maintainer artifacts.
 The repository is packaged as an installable skill for Codex and Claude Code,
 with manual fallback prompts for users who prefer app or web interfaces.
 
+The project includes a self-review transcript generated from multiple agent
+perspectives: `examples/transcripts/self-review-2026-06-08.md`.
+
 ## API Credit Plan
 
 OpenAI API credits would be used to build and test maintainer workflows around
@@ -39,14 +42,15 @@ for common coding-agent tools while keeping private data out of examples.
 
 ## Pre-Submission Checklist
 
-- [ ] Public GitHub repository
-- [ ] README explains problem, solution, and Codex fit
-- [ ] LICENSE included
-- [ ] Safety model included
-- [ ] Codex adapter included
-- [ ] Installable skill package included
-- [ ] CLI prerequisites documented
-- [ ] Maintainer workflow examples included
-- [ ] First release tag created
-- [ ] Roadmap issues created
+- [x] Public GitHub repository
+- [x] README explains problem, solution, and Codex fit
+- [x] LICENSE included
+- [x] Safety model included
+- [x] Codex adapter included
+- [x] Installable skill package included
+- [x] CLI prerequisites documented
+- [x] Maintainer workflow examples included
+- [x] First release tag created
+- [x] Roadmap issues created
+- [x] Self-review transcript included
 - [ ] No private paths, secrets, customer data, or internal incident notes

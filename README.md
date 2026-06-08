@@ -1,31 +1,37 @@
 # Multi-Agent Council
 
-Evidence-first review workflows for maintainers who use multiple coding agents.
+Cross-validation and debate workflows for maintainers who use multiple coding
+agents.
 
-Multi-Agent Council is a lightweight protocol for using Codex, Claude, Gemini,
-Grok, and other coding agents as independent reviewers. It is designed for pull
-request review, architecture decisions, security-sensitive changes, release
-checks, and incident follow-up.
+Multi-Agent Council is a lightweight protocol for making Codex, Claude, Gemini,
+Grok, and other coding agents challenge each other before a maintainer decides.
+It is designed for pull request review, architecture decisions,
+security-sensitive changes, release checks, and incident follow-up.
 
 The goal is not to make agents vote. The goal is to reduce single-agent bias by
-collecting independent analysis, requiring evidence, surfacing dissent, and
-ending with a clear decision record.
+using model diversity: independent reviews, explicit dissent, counterfactual
+rounds, and evidence-weighted synthesis.
 
 ## Why This Exists
 
+Different agents have different strengths, blind spots, context handling, tool
+behavior, and failure modes. A single confident answer is often less useful than
+several independent reviews that disagree for clear reasons.
+
 Maintainers increasingly use coding agents for real project work, but most
-agent workflows still have three failure modes:
+agent workflows still have four failure modes:
 
 - A single agent misses an edge case and sounds confident.
 - Multiple agents produce long opinions without a decision structure.
+- Later reviewers anchor on the first answer instead of independently checking.
 - Review output cannot be reused as an issue, PR comment, or architecture note.
 
 Multi-Agent Council turns those reviews into a repeatable maintainer workflow:
 
 1. Define the question and evidence sources.
 2. Ask each agent for an independent review from a distinct perspective.
-3. Compare agreement, disagreement, assumptions, and blocking objections.
-4. Run a dissent or counterfactual round when the answer looks too easy.
+3. Compare agreement, disagreement, assumptions, and blocking objections by evidence quality.
+4. Run a dissent or counterfactual round when the answer converges too quickly.
 5. Publish a short decision record with risks and follow-up tasks.
 
 ## Core Principles
@@ -40,11 +46,12 @@ Multi-Agent Council turns those reviews into a repeatable maintainer workflow:
 
 ```text
 council.md                 Protocol template
-skills/                    Installable Codex/Claude skill package
+.agents/skills/            Repo-scoped Codex skill package
 adapters/                  Tool-specific invocation notes
 examples/                  Example council outputs
 docs/                      Maintainer workflow and safety guidance
-scripts/run-council.sh     Minimal local prompt runner scaffold
+scripts/print-council-prompt.sh  Print a copy/paste council prompt
+scripts/run-council.sh     Backward-compatible wrapper for prompt printing
 scripts/install-skill.sh   Install the skill into Codex or Claude Code
 scripts/check-prereqs.sh   Check optional local agent CLIs
 ```
@@ -58,6 +65,10 @@ git clone https://github.com/ktaey7/multi-agent-council.git
 cd multi-agent-council
 scripts/install-skill.sh codex
 ```
+
+Codex also detects the repo-scoped skill directly from `.agents/skills/` when
+you work inside this repository. Use `/skills` or mention
+`$multi-agent-council` in Codex.
 
 Install as a Claude Code skill:
 
@@ -93,8 +104,11 @@ codex "Review the task in /tmp/council-review.md. Follow the Multi-Agent Council
 For local experimentation, the scaffold script prints a normalized prompt:
 
 ```bash
-scripts/run-council.sh examples/pr-review.md
+scripts/print-council-prompt.sh examples/pr-review.md
 ```
+
+See a real self-review transcript:
+[examples/transcripts/self-review-2026-06-08.md](examples/transcripts/self-review-2026-06-08.md).
 
 ## Example Use Cases
 
@@ -103,6 +117,13 @@ scripts/run-council.sh examples/pr-review.md
 - Security review for code that touches files, shell commands, secrets, or auth.
 - Release readiness review for changelog, tests, docs, and migration notes.
 - Incident follow-up where the team needs competing explanations.
+
+## Design Foundation
+
+The project is built around multi-agent cross-validation, not agent voting. Read
+[docs/research-foundation.md](docs/research-foundation.md) for the design
+principles behind independence, perspective assignment, evidence weighting, and
+counterfactual review.
 
 ## Do I Need Every CLI?
 
@@ -146,7 +167,8 @@ See [docs/safety-model.md](docs/safety-model.md).
 
 This repository is an early public release of a workflow that started as a local
 maintainer practice. The current focus is documentation, examples, adapter
-templates, and real-world review transcripts that other maintainers can reuse.
+templates, real-world review transcripts, and lightweight runtime glue that
+other maintainers can reuse.
 
 ## License
 
