@@ -6,8 +6,9 @@ usage() {
 usage: scripts/install-skill.sh [--dry-run] [--uninstall] codex|claude|both
 
 Environment overrides:
-  CODEX_SKILLS_DIR   default: $HOME/.agents/skills
-  CLAUDE_SKILLS_DIR  default: $HOME/.claude/skills
+  CODEX_SKILLS_DIR     default: $HOME/.agents/skills
+  CLAUDE_SKILLS_DIR    default: $HOME/.claude/skills
+  CLAUDE_COMMANDS_DIR  default: $HOME/.claude/commands
 EOF
 }
 
@@ -97,6 +98,20 @@ install_one() {
   if [ "$dry_run" -eq 0 ] && [ ! -f "$dest/SKILL.md" ]; then
     echo "install failed: $dest/SKILL.md was not created" >&2
     exit 1
+  fi
+
+  if [ "$app" = "claude" ]; then
+    local cmd_src="$repo_root/commands/council.md"
+    local cmd_base="${CLAUDE_COMMANDS_DIR:-$HOME/.claude/commands}"
+    if [ -f "$cmd_src" ]; then
+      run mkdir -p "$cmd_base"
+      run cp "$cmd_src" "$cmd_base/council.md"
+      if [ "$dry_run" -eq 1 ]; then
+        echo "would install claude command: $cmd_base/council.md"
+      else
+        echo "installed claude command: $cmd_base/council.md"
+      fi
+    fi
   fi
 
   if [ "$dry_run" -eq 1 ]; then
