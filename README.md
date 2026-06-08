@@ -51,6 +51,7 @@ adapters/                  Tool-specific invocation notes
 examples/                  Example council outputs
 docs/                      Maintainer workflow and safety guidance
 scripts/print-council-prompt.sh  Print a copy/paste council prompt
+scripts/council-runner.sh  Stage prompts or execute local agent CLIs
 scripts/run-council.sh     Backward-compatible wrapper for prompt printing
 scripts/install-skill.sh   Install the skill into Codex or Claude Code
 scripts/check-prereqs.sh   Check optional local agent CLIs
@@ -107,8 +108,36 @@ For local experimentation, the scaffold script prints a normalized prompt:
 scripts/print-council-prompt.sh examples/pr-review.md
 ```
 
+To stage a real council run with per-agent prompt files and a comparison
+template:
+
+```bash
+scripts/council-runner.sh \
+  --question "Should this PR merge?" \
+  --evidence README.md \
+  --evidence council.md
+```
+
+To invoke installed local CLIs in parallel, add `--execute`:
+
+```bash
+scripts/council-runner.sh \
+  --question "Should this PR merge?" \
+  --evidence README.md \
+  --evidence council.md \
+  --agents codex,claude,agy \
+  --execute
+```
+
+Runner outputs are written under `.council-runs/<timestamp>/` by default. The
+directory includes prompt files, raw outputs, metadata, a runbook, and a
+comparison template.
+
 See a real self-review transcript:
 [examples/transcripts/self-review-2026-06-08.md](examples/transcripts/self-review-2026-06-08.md).
+
+See a real local runner execution transcript:
+[examples/transcripts/council-runner-claude-test-2026-06-08.md](examples/transcripts/council-runner-claude-test-2026-06-08.md).
 
 ## Example Use Cases
 

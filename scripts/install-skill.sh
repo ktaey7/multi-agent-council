@@ -82,7 +82,11 @@ install_one() {
 
   if [ "$uninstall" -eq 1 ]; then
     run rm -rf "$dest"
-    echo "uninstalled $app skill: $dest"
+    if [ "$dry_run" -eq 1 ]; then
+      echo "would uninstall $app skill: $dest"
+    else
+      echo "uninstalled $app skill: $dest"
+    fi
     return
   fi
 
@@ -95,7 +99,11 @@ install_one() {
     exit 1
   fi
 
-  echo "installed $app skill: $dest"
+  if [ "$dry_run" -eq 1 ]; then
+    echo "would install $app skill: $dest"
+  else
+    echo "installed $app skill: $dest"
+  fi
 }
 
 case "$target" in
@@ -115,6 +123,6 @@ case "$target" in
     ;;
 esac
 
-if [ "$uninstall" -eq 0 ]; then
+if [ "$uninstall" -eq 0 ] && [ "$dry_run" -eq 0 ]; then
   echo "restart the target app or start a new session if the skill is not visible"
 fi

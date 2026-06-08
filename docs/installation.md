@@ -7,9 +7,9 @@ three ways:
 2. Clone and run prompts manually.
 3. Copy prompts into web or app-based AI tools.
 
-This repository is not yet a full agent orchestrator. The installable skill
-teaches Codex or Claude Code how to run the council workflow; it does not
-automatically call every external agent.
+The installable skill teaches Codex or Claude Code how to run the council
+workflow. The optional local runner can also stage prompts or invoke installed
+local CLIs when you explicitly pass `--execute`.
 
 ## Install as a Skill
 
@@ -73,6 +73,41 @@ scripts/print-council-prompt.sh examples/pr-review.md
 
 Then paste the generated prompt into Codex, Claude, Gemini, Grok, or another
 review tool.
+
+## Local Runner
+
+Stage a council run without calling any agent:
+
+```bash
+scripts/council-runner.sh \
+  --question "Should this PR merge?" \
+  --evidence README.md \
+  --evidence council.md
+```
+
+This creates:
+
+```text
+.council-runs/<timestamp>/
+├── RUNBOOK.md
+├── comparison.md
+├── metadata.json
+└── prompts/
+```
+
+Invoke installed local CLIs in parallel:
+
+```bash
+scripts/council-runner.sh \
+  --question "Should this PR merge?" \
+  --evidence README.md \
+  --evidence council.md \
+  --agents codex,claude,agy \
+  --execute
+```
+
+Use `--execute` intentionally. It may consume model credits and depends on local
+CLI authentication. If a tool is missing, omit it or use `--agents auto`.
 
 ## Required Tools
 

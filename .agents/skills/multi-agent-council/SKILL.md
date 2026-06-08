@@ -73,6 +73,17 @@ Return:
 5. Open questions
 ```
 
+If the repository has the Multi-Agent Council scripts available, the maintainer
+can stage or run prompts with:
+
+```bash
+scripts/council-runner.sh --question "[question]" --evidence "[file-or-diff]"
+scripts/council-runner.sh --question "[question]" --evidence "[file-or-diff]" --execute
+```
+
+Use `--execute` only when the user wants local CLIs invoked. It may consume model
+credits and depends on each CLI's authentication.
+
 ### 3. Compare
 
 Create a table:

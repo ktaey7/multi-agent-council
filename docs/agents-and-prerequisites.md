@@ -33,6 +33,31 @@ grok -p "Say ready"
 If a tool fails, keep the council running with the remaining tools or switch to
 manual copy/paste.
 
+The local runner supports both modes:
+
+```bash
+# Prompt-only, no agent calls
+scripts/council-runner.sh --question "..." --evidence README.md
+
+# Execute installed CLIs
+scripts/council-runner.sh --question "..." --evidence README.md --execute
+```
+
+The runner stores prompts, outputs, metadata, and a comparison template under
+`.council-runs/<timestamp>/`.
+
+The prerequisite checker is implemented by the same Python runner to keep agent
+detection logic in one place:
+
+```bash
+scripts/council-runner.sh --check-prereqs
+scripts/check-prereqs.sh --strict
+```
+
+Nested agent calls can fail inside restrictive sandboxes even when the same CLI
+works in a normal terminal. If an agent output reports a sandbox or app-server
+initialization error, retry from a regular shell or use prompt-only mode.
+
 ## Minimum Useful Modes
 
 ### Full Council

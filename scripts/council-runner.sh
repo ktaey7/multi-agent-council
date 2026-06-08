@@ -4,12 +4,12 @@ set -euo pipefail
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 if command -v python3 >/dev/null 2>&1; then
-  exec python3 "$script_dir/council-runner.py" --check-prereqs "$@"
+  exec python3 "$script_dir/council-runner.py" "$@"
 fi
 
 if command -v python >/dev/null 2>&1 && python --version 2>&1 | grep -q "Python 3"; then
-  exec python "$script_dir/council-runner.py" --check-prereqs "$@"
+  exec python "$script_dir/council-runner.py" "$@"
 fi
 
-echo "Error: Python 3 is required to run the Multi-Agent Council prerequisite check." >&2
+echo "Error: Python 3 is required to run the Multi-Agent Council runner." >&2
 exit 1

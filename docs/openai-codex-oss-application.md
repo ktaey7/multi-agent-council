@@ -33,6 +33,10 @@ checklist generation, security-sensitive change review, and structured decision
 record drafting. The goal is to publish reusable templates and examples that
 help small open-source maintainers adopt safer, evidence-based agent workflows.
 
+The local runner now supports prompt staging and optional local CLI execution,
+so future API credits can be used to test higher-quality review workflows and
+publish redacted transcripts.
+
 ## Optional Additional Note
 
 This project is intentionally small and documentation-first. Its value is in the
@@ -53,4 +57,4 @@ for common coding-agent tools while keeping private data out of examples.
 - [x] First release tag created
 - [x] Roadmap issues created
 - [x] Self-review transcript included
-- [ ] No private paths, secrets, customer data, or internal incident notes
+- [x] No private paths, secrets, customer data, or internal incident notes

@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Added `scripts/council-runner.py` and `scripts/council-runner.sh` for prompt staging and optional parallel local CLI execution.
+- Added real local runner execution transcript using Claude CLI.
+- Improved prerequisite checker with `--strict`, summary counts, stdin-closed version checks, and auth caveats.
+- Moved prerequisite detection into `council-runner.py`; `check-prereqs.sh` is now a wrapper.
+- Added Python executable fallback in `check-prereqs.sh` and captured stderr during version checks.
 - Reframed the project around multi-agent cross-validation and debate.
 - Moved the skill package to Codex's repo-scoped `.agents/skills` layout.
 - Corrected Codex user install target to `$HOME/.agents/skills`.
