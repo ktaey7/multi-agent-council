@@ -55,6 +55,12 @@ def parse_args() -> argparse.Namespace:
         help="Output directory. Defaults to .council-runs/<timestamp>.",
     )
     parser.add_argument(
+        "--prompts-dir",
+        default=None,
+        help="Execute driver-supplied per-agent prompt files (<dir>/<agent>.md) "
+        "instead of generating prompts. Used for round-2 cross-examination.",
+    )
+    parser.add_argument(
         "--execute",
         action="store_true",
         help="Actually invoke available local agent CLIs. Default only writes prompts.",
@@ -107,6 +113,25 @@ def select_agents(raw: str, execute: bool) -> list[str]:
     if unknown:
         raise SystemExit(f"unknown agent(s): {', '.join(unknown)}")
     return selected
+
+
+def prompts_from_dir(prompts_dir: Path, agents: list[str] | None) -> dict[str, Path]:
+    found: dict[str, Path] = {}
+    for agent in AGENT_ORDER:
+        candidate = prompts_dir / f"{agent}.md"
+        if candidate.is_file():
+            found[agent] = candidate
+    if agents:
+        missing = [agent for agent in agents if agent not in found]
+        if missing:
+            raise SystemExit(
+                f"--prompts-dir {prompts_dir} is missing prompt files for: "
+                f"{', '.join(missing)}"
+            )
+        return {agent: found[agent] for agent in agents}
+    if not found:
+        raise SystemExit(f"no <agent>.md prompt files found in {prompts_dir}")
+    return found
 
 
 def check_prereqs(strict: bool) -> int:
@@ -370,8 +395,10 @@ def main() -> int:
     args = parse_args()
     if args.check_prereqs:
         return check_prereqs(args.strict)
-    if not args.question:
-        raise SystemExit("--question is required unless --check-prereqs is used")
+    if not args.question and not args.prompts_dir:
+        raise SystemExit(
+            "--question is required unless --check-prereqs or --prompts-dir is used"
+        )
     repo = repo_root(args.repo)
     out = output_dir(repo, args.out)
     prompts_dir = out / "prompts"
@@ -379,14 +406,29 @@ def main() -> int:
     prompts_dir.mkdir(parents=True, exist_ok=True)
     outputs_dir.mkdir(parents=True, exist_ok=True)
 
-    agents = select_agents(args.agents, args.execute)
-    if not agents:
-        print(
-            "No requested agent CLIs are installed. Use prompt-only mode or pass "
-            "--agents codex,claude,agy,grok to stage prompts manually.",
-            file=sys.stderr,
-        )
-        return 2
+    source_prompts_dir: Path | None = None
+    if args.prompts_dir:
+        source_prompts_dir = Path(args.prompts_dir).expanduser().resolve()
+        requested = None
+        if args.agents != "auto":
+            requested = [a.strip() for a in args.agents.split(",") if a.strip()]
+        prompt_paths = prompts_from_dir(source_prompts_dir, requested)
+        agents = list(prompt_paths.keys())
+    else:
+        agents = select_agents(args.agents, args.execute)
+        if not agents:
+            print(
+                "No requested agent CLIs are installed. Use prompt-only mode or pass "
+                "--agents codex,claude,agy,grok to stage prompts manually.",
+                file=sys.stderr,
+            )
+            return 2
+        prompt_paths = {}
+        for agent in agents:
+            prompt = build_prompt(agent, args.question, args.evidence, repo)
+            prompt_path = prompts_dir / f"{agent}.md"
+            prompt_path.write_text(prompt, encoding="utf-8")
+            prompt_paths[agent] = prompt_path
 
     metadata: dict[str, object] = {
         "question": args.question,
@@ -395,15 +437,9 @@ def main() -> int:
         "out": str(out),
         "execute": args.execute,
         "agents": agents,
+        "prompts_dir": str(source_prompts_dir) if source_prompts_dir else None,
         "created_at": dt.datetime.now(dt.timezone.utc).isoformat(),
     }
-
-    prompt_paths: dict[str, Path] = {}
-    for agent in agents:
-        prompt = build_prompt(agent, args.question, args.evidence, repo)
-        prompt_path = prompts_dir / f"{agent}.md"
-        prompt_path.write_text(prompt, encoding="utf-8")
-        prompt_paths[agent] = prompt_path
 
     write_runbook(out, agents, args.execute, repo)
     write_comparison_template(out, agents)
