@@ -72,3 +72,73 @@ def test_prompts_dir_mode_stages_run(tmp_path):
     meta = json.loads((out / "metadata.json").read_text())
     assert meta["agents"] == ["codex", "claude"]
     assert meta["prompts_dir"] == str(src.resolve())
+
+
+def test_resolve_wanted_auto_returns_all(tmp_path):
+    mod = _load()
+    assert mod.resolve_wanted("auto") == list(mod.AGENT_ORDER)
+
+
+def test_resolve_wanted_unknown_errors():
+    mod = _load()
+    with pytest.raises(SystemExit):
+        mod.resolve_wanted("codex,bogus")
+
+
+def test_partition_installed_splits_by_which():
+    mod = _load()
+    present = {"codex", "grok"}
+    fake_which = lambda name: name if name in present else None
+    installed, missing = mod.partition_installed(["codex", "claude", "agy", "grok"], which=fake_which)
+    assert installed == ["codex", "grok"]
+    assert missing == ["claude", "agy"]
+
+
+def _fake_cmd_script(tmp_path, name, body):
+    script = tmp_path / name
+    script.write_text("#!/bin/sh\n" + body)
+    script.chmod(0o755)
+    return script
+
+
+def test_run_agent_excludes_stderr_on_success(tmp_path, monkeypatch):
+    mod = _load()
+    script = _fake_cmd_script(tmp_path, "ok.sh", "echo REVIEW_OK\necho noise 1>&2\nexit 0\n")
+    monkeypatch.setattr(mod, "command_for", lambda *a, **k: ["sh", str(script)])
+    prompt = tmp_path / "p.md"; prompt.write_text("hi", encoding="utf-8")
+    out = tmp_path / "o.md"
+    res = mod.run_agent("claude", tmp_path, prompt, out, 30, False)
+    assert res["status"] == "ok"
+    text = out.read_text()
+    assert "REVIEW_OK" in text
+    assert "noise" not in text
+
+
+def test_run_agent_includes_stderr_on_failure(tmp_path, monkeypatch):
+    mod = _load()
+    script = _fake_cmd_script(tmp_path, "fail.sh", "echo problem 1>&2\nexit 3\n")
+    monkeypatch.setattr(mod, "command_for", lambda *a, **k: ["sh", str(script)])
+    prompt = tmp_path / "p.md"; prompt.write_text("hi", encoding="utf-8")
+    out = tmp_path / "o.md"
+    res = mod.run_agent("claude", tmp_path, prompt, out, 30, False)
+    assert res["status"] == "failed"
+    assert "problem" in out.read_text()
+
+
+def test_run_agent_timeout(tmp_path, monkeypatch):
+    mod = _load()
+    monkeypatch.setattr(mod, "command_for", lambda *a, **k: ["sleep", "5"])
+    prompt = tmp_path / "p.md"; prompt.write_text("hi", encoding="utf-8")
+    out = tmp_path / "o.md"
+    res = mod.run_agent("claude", tmp_path, prompt, out, 1, False)
+    assert res["status"] == "timeout"
+
+
+def test_run_agent_oserror_on_missing_binary(tmp_path, monkeypatch):
+    mod = _load()
+    monkeypatch.setattr(mod, "command_for", lambda *a, **k: ["/nonexistent/binary_xyz123"])
+    prompt = tmp_path / "p.md"; prompt.write_text("hi", encoding="utf-8")
+    out = tmp_path / "o.md"
+    res = mod.run_agent("claude", tmp_path, prompt, out, 5, False)
+    assert res["status"] == "failed"
+    assert "Failed to start" in out.read_text()

@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 import datetime as dt
+import errno
 import json
 import os
 import shutil
@@ -68,7 +69,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--timeout",
         type=int,
-        default=900,
+        default=300,
         help="Per-agent timeout in seconds when --execute is used.",
     )
     parser.add_argument(
@@ -103,16 +104,20 @@ def output_dir(repo: Path, raw: str | None) -> Path:
     return repo / ".council-runs" / stamp
 
 
-def select_agents(raw: str, execute: bool) -> list[str]:
+def resolve_wanted(raw: str) -> list[str]:
     if raw == "auto":
-        if not execute:
-            return list(AGENT_ORDER)
-        return [agent for agent in AGENT_ORDER if shutil.which(agent)]
+        return list(AGENT_ORDER)
     selected = [part.strip() for part in raw.split(",") if part.strip()]
     unknown = [agent for agent in selected if agent not in AGENT_ORDER]
     if unknown:
         raise SystemExit(f"unknown agent(s): {', '.join(unknown)}")
     return selected
+
+
+def partition_installed(agents, which=shutil.which):
+    installed = [agent for agent in agents if which(agent)]
+    missing = [agent for agent in agents if not which(agent)]
+    return installed, missing
 
 
 def prompts_from_dir(prompts_dir: Path, agents: list[str] | None) -> dict[str, Path]:
@@ -291,10 +296,9 @@ def run_agent(
             timeout=timeout,
             check=False,
         )
-        combined = ""
-        if proc.stdout:
-            combined += proc.stdout
-        if proc.stderr:
+        combined = proc.stdout or ""
+        include_stderr = proc.returncode != 0 or not combined.strip()
+        if proc.stderr and include_stderr:
             if combined:
                 combined += "\n\n--- stderr ---\n"
             combined += proc.stderr
@@ -310,7 +314,14 @@ def run_agent(
             "command": redact_command(cmd),
         }
     except OSError as exc:
-        output_path.write_text(f"Failed to start {agent}: {exc}\n", encoding="utf-8")
+        message = f"Failed to start {agent}: {exc}\n"
+        if agent == "agy" and getattr(exc, "errno", None) == errno.E2BIG:
+            message = (
+                "Failed to start agy: prompt too large for agy's command-line "
+                "interface (agy takes the prompt as an argument; it has no stdin "
+                "or --prompt-file). Shorten the evidence or prompt.\n"
+            )
+        output_path.write_text(message, encoding="utf-8")
         return {
             "agent": agent,
             "status": "failed",
@@ -412,6 +423,9 @@ def main() -> int:
     outputs_dir = out / "outputs"
     outputs_dir.mkdir(parents=True, exist_ok=True)
 
+    wanted: list[str] = []
+    skipped: list[str] = []
+
     source_prompts_dir: Path | None = None
     if args.prompts_dir:
         source_prompts_dir = Path(args.prompts_dir).expanduser().resolve()
@@ -420,15 +434,31 @@ def main() -> int:
             requested = [a.strip() for a in args.agents.split(",") if a.strip()]
         prompt_paths = prompts_from_dir(source_prompts_dir, requested)
         agents = list(prompt_paths.keys())
+        wanted = list(agents)
     else:
-        agents = select_agents(args.agents, args.execute)
-        if not agents:
-            print(
-                "No requested agent CLIs are installed. Use prompt-only mode or pass "
-                "--agents codex,claude,agy,grok to stage prompts manually.",
-                file=sys.stderr,
-            )
-            return 2
+        wanted = resolve_wanted(args.agents)
+        if args.execute:
+            agents, skipped = partition_installed(wanted)
+            if skipped:
+                print(
+                    f"Skipped (CLI not found): {', '.join(skipped)}",
+                    file=sys.stderr,
+                )
+            if not agents:
+                print(
+                    "No requested agent CLIs are installed. Re-run without --execute "
+                    "to stage prompts for manual use, or install a participant CLI.",
+                    file=sys.stderr,
+                )
+                return 2
+            if len(agents) < 2:
+                print(
+                    f"Warning: only {len(agents)} of {len(wanted)} configured agents "
+                    "will run — this is a single-agent pass, not a multi-agent council.",
+                    file=sys.stderr,
+                )
+        else:
+            agents = wanted
         prompts_dir.mkdir(parents=True, exist_ok=True)
         prompt_paths = {}
         for agent in agents:
@@ -444,6 +474,8 @@ def main() -> int:
         "out": str(out),
         "execute": args.execute,
         "agents": agents,
+        "configured": wanted,
+        "skipped": skipped,
         "prompts_dir": str(source_prompts_dir) if source_prompts_dir else None,
         "created_at": dt.datetime.now(dt.timezone.utc).isoformat(),
     }
@@ -479,7 +511,11 @@ def main() -> int:
     print(f"Council run staged: {out}")
     if args.execute:
         ok_count = sum(1 for result in results if result["status"] == "ok")
-        print(f"Executed {ok_count}/{len(results)} agents successfully")
+        failed_count = len(results) - ok_count
+        summary = f"Executed {ok_count} ok / {failed_count} failed of {len(results)} run"
+        if skipped:
+            summary += f"; {len(skipped)} skipped (CLI not found): {', '.join(skipped)}"
+        print(summary)
     else:
         print("Prompt-only mode. Add --execute to call local CLIs.")
     return 0
