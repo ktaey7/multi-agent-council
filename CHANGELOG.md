@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.3.0 - 2026-06-08
 
 - Added a **turnkey `/council` flow**: the coding agent drives a full council from one command — gather evidence, run participants in parallel, anonymize, debate on divergence, and synthesize a decision record.
 - Added a `/council` slash command for Claude Code (`commands/council.md`); the installer now also installs it to `~/.claude/commands/`.
