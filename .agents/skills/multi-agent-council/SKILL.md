@@ -16,6 +16,22 @@ environment. The council analyzes; the maintainer decides.
 - **Pass When Empty**: if no new evidence exists, use `PASS` instead of filler.
 - **Read-Only First**: begin with analysis only; writes require explicit user approval.
 
+## Bias Controls
+
+These keep a council from collapsing into one anchored opinion. Apply them
+whenever you show one agent's output to another.
+
+- **Codename anonymization**: relabel each agent's review with a neutral codename
+  (Alpha, Bravo, Delta...) before showing it to another agent. Never reveal which
+  model wrote it. Keep a private codename→model map; restore real names only in
+  the final decision record's dissent section.
+- **Hide the consensus ratio**: never say "most agents agree" or "three of four
+  said yes." Share the content of other reviews, never the tally.
+- **Rotate speaking order**: change which review is summarized first each round to
+  spread anchoring.
+- **PASS to converge**: an agent says `PASS` only with no new evidence, no changed
+  position, and no blocking objection. Two or more PASS in a round means stop.
+
 ## Agent Availability
 
 Do not assume every CLI is installed or authenticated.
@@ -84,7 +100,27 @@ scripts/council-runner.sh --question "[question]" --evidence "[file-or-diff]" --
 Use `--execute` only when the user wants local CLIs invoked. It may consume model
 credits and depends on each CLI's authentication.
 
-### 3. Compare
+### 3. Cross-Examine
+
+Show each agent the other agents' Phase 2 reviews, anonymized by codename and with
+the consensus ratio hidden. Rotate which review is presented first. Ask each agent
+to name the strongest opposing claim, the weakest, and whether its judgment changes.
+Stop when two or more agents answer `PASS`.
+
+```text
+Here are the other reviews, by codename. Some may be wrong.
+
+[Alpha] ...
+[Bravo] ...
+
+Do not treat agreement as correctness. Return:
+1. Strongest opposing claim and why (cite it).
+2. Claim you challenge, with a concrete failure scenario.
+3. Whether your judgment changes, and what changed it.
+4. PASS only if you have nothing new.
+```
+
+### 4. Compare
 
 Create a table:
 
@@ -99,7 +135,10 @@ Then summarize:
 - missing evidence
 - decision options
 
-### 4. Run Counterfactual Round
+Do not treat majority agreement as correctness. Prefer the argument with the
+strongest evidence and the clearest failure-mode analysis.
+
+### 5. Run Counterfactual Round
 
 Use this when the answer converges quickly or the decision is high impact:
 
@@ -113,9 +152,9 @@ Provide:
 4. Whether your prior judgment changes.
 ```
 
-### 5. Produce Decision Record
+### 6. Produce Decision Record
 
-End with:
+End with (map codenames back to real model names only in the dissent section):
 
 ```markdown
 # Decision Record: [Title]

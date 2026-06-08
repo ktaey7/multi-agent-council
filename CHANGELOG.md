@@ -1,6 +1,13 @@
 # Changelog
 
-## Unreleased
+## 0.2.0 - 2026-06-08
+
+- Added explicit **bias controls** to the protocol: codename anonymization, hiding the consensus ratio, speaking-order rotation, and `PASS` as the convergence signal.
+- Added a **Cross-Examination** phase so agents debate each other's anonymized reviews instead of producing parallel monologues.
+- Documented the rationale for each bias control in `docs/research-foundation.md`.
+- Updated `council.md`, the skill `SKILL.md`, and the README to reflect the cross-examination step and bias controls.
+- Added a real four-agent execution transcript (Codex, Claude, Gemini, Grok) under `examples/transcripts/`.
+- Moved OpenAI Codex OSS application notes out of the repository to keep it positioned as a protocol, not an application artifact.
 
 - Added `scripts/council-runner.py` and `scripts/council-runner.sh` for prompt staging and optional parallel local CLI execution.
 - Added real local runner execution transcript using Claude CLI.

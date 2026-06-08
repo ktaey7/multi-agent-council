@@ -30,9 +30,10 @@ Multi-Agent Council turns those reviews into a repeatable maintainer workflow:
 
 1. Define the question and evidence sources.
 2. Ask each agent for an independent review from a distinct perspective.
-3. Compare agreement, disagreement, assumptions, and blocking objections by evidence quality.
-4. Run a dissent or counterfactual round when the answer converges too quickly.
-5. Publish a short decision record with risks and follow-up tasks.
+3. Cross-examine: show each agent the others' reviews — anonymized by codename, with the consensus ratio hidden — and ask what they challenge.
+4. Compare agreement, disagreement, assumptions, and blocking objections by evidence quality.
+5. Run a dissent or counterfactual round when the answer converges too quickly.
+6. Publish a short decision record with risks and follow-up tasks.
 
 ## Core Principles
 
@@ -41,6 +42,11 @@ Multi-Agent Council turns those reviews into a repeatable maintainer workflow:
 - **Evidence Required**: claims should point to code, docs, logs, tests, or data.
 - **Pass When Empty**: if there is no new evidence, say `PASS` instead of adding noise.
 - **Read-Only by Default**: council participants analyze before any tool changes state.
+
+To keep agents from collapsing back into a single anchored opinion, the protocol
+adds four **bias controls**: codename anonymization, hiding the consensus ratio,
+rotating speaking order, and using `PASS` as the convergence signal. See
+[docs/research-foundation.md](docs/research-foundation.md#bias-controls).
 
 ## Repository Contents
 
@@ -51,7 +57,8 @@ adapters/                  Tool-specific invocation notes
 examples/                  Example council outputs
 docs/                      Maintainer workflow and safety guidance
 scripts/print-council-prompt.sh  Print a copy/paste council prompt
-scripts/council-runner.sh  Stage prompts or execute local agent CLIs
+scripts/council-runner.py  Orchestration logic: stage prompts, optionally run local CLIs, collect outputs
+scripts/council-runner.sh  Wrapper that runs council-runner.py with the system Python
 scripts/run-council.sh     Backward-compatible wrapper for prompt printing
 scripts/install-skill.sh   Install the skill into Codex or Claude Code
 scripts/check-prereqs.sh   Check optional local agent CLIs
@@ -139,6 +146,10 @@ local machine.
 
 See a real self-review transcript:
 [examples/transcripts/self-review-2026-06-08.md](examples/transcripts/self-review-2026-06-08.md).
+
+See a real four-agent execution transcript, where two agents converged and two
+failed for environment reasons the runner captured:
+[examples/transcripts/four-agent-orchestrator-decision-2026-06-08.md](examples/transcripts/four-agent-orchestrator-decision-2026-06-08.md).
 
 See a real local runner execution transcript:
 [examples/transcripts/council-runner-claude-test-2026-06-08.md](examples/transcripts/council-runner-claude-test-2026-06-08.md).
