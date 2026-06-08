@@ -11,6 +11,15 @@ The installable skill teaches Codex or Claude Code how to run the council
 workflow. The optional local runner can also stage prompts or invoke installed
 local CLIs when you explicitly pass `--execute`.
 
+## Turnkey Use (`/council`)
+
+`scripts/install-skill.sh claude` installs both the skill and a `/council`
+slash command into `~/.claude/commands/`. In a new Claude Code session, run
+`/council <question>`; the agent drives a full council and returns a decision
+record. This needs the participant CLIs you want to call (see Required Tools)
+installed and authenticated. Codex users get the same flow via the skill
+(`$multi-agent-council`); the slash command is Claude Code specific.
+
 ## Install as a Skill
 
 Clone the repository:
@@ -41,7 +50,8 @@ scripts/install-skill.sh both
 The installer copies:
 
 ```text
-.agents/skills/multi-agent-council/
+.agents/skills/multi-agent-council/   (skill, both targets)
+commands/council.md                   (Claude Code only -> ~/.claude/commands/)
 ```
 
 to one or both of:

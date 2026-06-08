@@ -64,6 +64,25 @@ scripts/install-skill.sh   Install the skill into Codex or Claude Code
 scripts/check-prereqs.sh   Check optional local agent CLIs
 ```
 
+## Turnkey Quick Start
+
+If you use Claude Code or Codex with the participant CLIs installed and
+authenticated, install the skill and command, then run one command:
+
+```bash
+scripts/install-skill.sh claude   # installs the skill + the /council command
+```
+
+In a new Claude Code session:
+
+```text
+/council Should we merge PR #42? Evidence: the diff and tests/test_auth.py
+```
+
+The agent gathers evidence, runs the participants in parallel, anonymizes their
+reviews, debates only if they diverge, and returns a decision record. With no
+CLIs installed it falls back to the manual protocol below.
+
 ## Quick Start
 
 Install as a Codex skill:
