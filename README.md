@@ -81,7 +81,8 @@ In a new Claude Code session:
 
 The agent gathers evidence, runs the participants in parallel, anonymizes their
 reviews, debates only if they diverge, and returns a decision record. With no
-CLIs installed it falls back to the manual protocol below.
+participant CLIs installed, use the manual protocol below — or omit `--execute`
+to stage prompts you can paste into web/app UIs.
 
 ## Quick Start
 
@@ -169,6 +170,10 @@ See a real self-review transcript:
 See a real four-agent execution transcript, where two agents converged and two
 failed for environment reasons the runner captured:
 [examples/transcripts/four-agent-orchestrator-decision-2026-06-08.md](examples/transcripts/four-agent-orchestrator-decision-2026-06-08.md).
+
+See a fresh-user evaluation where the tool reviewed its own code and found real
+bugs (fixed in v0.3.1):
+[examples/transcripts/fresh-user-evaluation-2026-06-08.md](examples/transcripts/fresh-user-evaluation-2026-06-08.md).
 
 See a real local runner execution transcript:
 [examples/transcripts/council-runner-claude-test-2026-06-08.md](examples/transcripts/council-runner-claude-test-2026-06-08.md).

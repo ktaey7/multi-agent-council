@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install pytest
+        run: python -m pip install --upgrade pip pytest
+
+      - name: Run tests
+        run: python -m pytest tests/ -q
+
+      - name: Shell syntax check
+        run: |
+          bash -n scripts/install-skill.sh
+          bash -n scripts/council-runner.sh
+          bash -n scripts/check-prereqs.sh
+          bash -n scripts/print-council-prompt.sh
+          bash -n scripts/run-council.sh
+
+      - name: Installer dry-run (sandboxed)
+        run: |
+          CLAUDE_SKILLS_DIR=/tmp/ci/skills \
+          CLAUDE_COMMANDS_DIR=/tmp/ci/cmds \
+          CODEX_SKILLS_DIR=/tmp/ci/codex \
+          scripts/install-skill.sh --dry-run both
+
+      - name: Prerequisite check (informational)
+        run: scripts/check-prereqs.sh
