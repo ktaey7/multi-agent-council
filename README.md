@@ -133,6 +133,10 @@ Runner outputs are written under `.council-runs/<timestamp>/` by default. The
 directory includes prompt files, raw outputs, metadata, a runbook, and a
 comparison template.
 
+Without `--execute`, the default `--agents auto` stages prompts for all four
+agent perspectives. With `--execute`, `auto` only invokes CLIs found on the
+local machine.
+
 See a real self-review transcript:
 [examples/transcripts/self-review-2026-06-08.md](examples/transcripts/self-review-2026-06-08.md).
 

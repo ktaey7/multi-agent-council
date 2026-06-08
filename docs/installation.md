@@ -108,6 +108,8 @@ scripts/council-runner.sh \
 
 Use `--execute` intentionally. It may consume model credits and depends on local
 CLI authentication. If a tool is missing, omit it or use `--agents auto`.
+Without `--execute`, `auto` stages prompt files for all four supported agent
+perspectives even when no local CLIs are installed.
 
 ## Required Tools
 

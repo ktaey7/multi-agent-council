@@ -97,8 +97,10 @@ def output_dir(repo: Path, raw: str | None) -> Path:
     return repo / ".council-runs" / stamp
 
 
-def select_agents(raw: str) -> list[str]:
+def select_agents(raw: str, execute: bool) -> list[str]:
     if raw == "auto":
+        if not execute:
+            return list(AGENT_ORDER)
         return [agent for agent in AGENT_ORDER if shutil.which(agent)]
     selected = [part.strip() for part in raw.split(",") if part.strip()]
     unknown = [agent for agent in selected if agent not in AGENT_ORDER]
@@ -377,9 +379,13 @@ def main() -> int:
     prompts_dir.mkdir(parents=True, exist_ok=True)
     outputs_dir.mkdir(parents=True, exist_ok=True)
 
-    agents = select_agents(args.agents)
+    agents = select_agents(args.agents, args.execute)
     if not agents:
-        print("No requested agents are installed. Wrote no prompts.", file=sys.stderr)
+        print(
+            "No requested agent CLIs are installed. Use prompt-only mode or pass "
+            "--agents codex,claude,agy,grok to stage prompts manually.",
+            file=sys.stderr,
+        )
         return 2
 
     metadata: dict[str, object] = {

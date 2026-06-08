@@ -89,6 +89,8 @@ Follow-up implemented:
 - Moved prerequisite detection into `council-runner.py`.
 - Added Python wrapper fallback from `python3` to `python` when it is Python 3.
 - Captured version output from stderr as well as stdout.
+- Changed prompt-only `--agents auto` to stage all supported agent prompts, so
+  the default documented command works even before local CLIs are installed.
 
 Known limitation:
 
