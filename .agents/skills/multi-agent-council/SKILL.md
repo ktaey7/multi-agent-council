@@ -32,6 +32,48 @@ whenever you show one agent's output to another.
 - **PASS to converge**: an agent says `PASS` only with no new evidence, no changed
   position, and no blocking objection. Two or more PASS in a round means stop.
 
+## Turnkey Execution
+
+When the user asks for a council on a concrete question (or runs `/council`),
+drive the whole run yourself and end with a decision record. Default to one
+round; only debate when reviews diverge or the user asks.
+
+1. **Gather evidence.** Read the named files/diffs directly. Summarize large
+   secondary context. Pick distinct perspectives for the question.
+2. **Round 1 — independent reviews.** Run the participants in parallel through
+   the runner, which handles sandboxing and partial failures:
+
+   ```bash
+   scripts/council-runner.sh --execute \
+     --question "<question>" \
+     --evidence "<file-or-note>" [--evidence ...] \
+     --agents auto
+   ```
+
+   Read each `outputs/<agent>.md` under the printed `.council-runs/<ts>/` dir.
+3. **Anonymize.** Assign neutral codenames (Alpha, Bravo, Delta...) to the
+   reviews. Keep your private codename→model map. Build the comparison table by
+   codename; never state the consensus ratio.
+4. **Decide if you need round 2.** If reviews converge with strong evidence or
+   two or more effectively PASS, skip to synthesis. If they materially diverge,
+   or the user passed `--debate`, run one cross-examination round.
+5. **Round 2 — cross-examination (optional).** Write one prompt per agent into a
+   temp dir as `<dir>/<agent>.md`. Each prompt shows that agent the OTHER
+   reviews under codenames (rotate which is first), hides the consensus ratio,
+   and asks: strongest opposing claim, weakest, does your judgment change, PASS
+   if nothing new. Then execute them:
+
+   ```bash
+   scripts/council-runner.sh --execute --prompts-dir <dir> --agents <same-set>
+   ```
+
+6. **Synthesize.** Produce the comparison table (codenames) and a
+   maintainer-owned decision record. Restore real model names only in the
+   dissent section.
+7. **Degrade honestly.** If only one or two agents are available, or an agent
+   fails mid-run (e.g., out of credits, timeout), continue with the rest and add
+   a visible note: `⚠️ council reduced to N agents (reason)`.
+
 ## Agent Availability
 
 Do not assume every CLI is installed or authenticated.
