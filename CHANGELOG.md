@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.1 - 2026-06-08
+
+- **Honest auto-mode reporting**: `--execute --agents auto` now lists skipped CLIs and prints a truthful `X ok / Y failed of N run; M skipped` summary instead of a misleading `Executed 1/1 agents successfully`. Records `configured`/`skipped` in metadata and warns on single-agent runs.
+- **Cleaner output files**: agent stderr (e.g. Codex session logs) is appended only on failure or empty output, so successful reviews are no longer bloated.
+- Clearer message when a prompt is too large for `agy`'s argv-only interface; lowered the default `--timeout` from 900s to 300s.
+- Added **execution-path tests** (`run_agent` success/failure/timeout/OSError, agent selection) and a **GitHub Actions CI** workflow (pytest, shell syntax, dry-run install, prereq check).
+- Fixed the README "falls back to the manual protocol" claim to match actual behavior; added a fresh-user evaluation transcript where the tool reviewed its own code and surfaced these fixes.
+
 ## 0.3.0 - 2026-06-08
 
 - Added a **turnkey `/council` flow**: the coding agent drives a full council from one command — gather evidence, run participants in parallel, anonymize, debate on divergence, and synthesize a decision record.
