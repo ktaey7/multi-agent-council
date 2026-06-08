@@ -19,6 +19,9 @@ security-sensitive change review, release readiness, and decision records. The
 project focuses on reducing single-agent bias, making dissent explicit, and
 turning AI output into reusable maintainer artifacts.
 
+The repository is packaged as an installable skill for Codex and Claude Code,
+with manual fallback prompts for users who prefer app or web interfaces.
+
 ## API Credit Plan
 
 OpenAI API credits would be used to build and test maintainer workflows around
@@ -41,6 +44,8 @@ for common coding-agent tools while keeping private data out of examples.
 - [ ] LICENSE included
 - [ ] Safety model included
 - [ ] Codex adapter included
+- [ ] Installable skill package included
+- [ ] CLI prerequisites documented
 - [ ] Maintainer workflow examples included
 - [ ] First release tag created
 - [ ] Roadmap issues created

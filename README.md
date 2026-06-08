@@ -40,13 +40,41 @@ Multi-Agent Council turns those reviews into a repeatable maintainer workflow:
 
 ```text
 council.md                 Protocol template
+skills/                    Installable Codex/Claude skill package
 adapters/                  Tool-specific invocation notes
 examples/                  Example council outputs
 docs/                      Maintainer workflow and safety guidance
 scripts/run-council.sh     Minimal local prompt runner scaffold
+scripts/install-skill.sh   Install the skill into Codex or Claude Code
+scripts/check-prereqs.sh   Check optional local agent CLIs
 ```
 
 ## Quick Start
+
+Install as a Codex skill:
+
+```bash
+git clone https://github.com/ktaey7/multi-agent-council.git
+cd multi-agent-council
+scripts/install-skill.sh codex
+```
+
+Install as a Claude Code skill:
+
+```bash
+scripts/install-skill.sh claude
+```
+
+Check optional local agent CLIs:
+
+```bash
+scripts/check-prereqs.sh
+```
+
+See [docs/installation.md](docs/installation.md) and
+[docs/agents-and-prerequisites.md](docs/agents-and-prerequisites.md).
+
+## Manual Quick Start
 
 Copy `council.md` into a maintainer note, replace the bracketed fields, and run
 the first round with the agents you already use.
@@ -75,6 +103,20 @@ scripts/run-council.sh examples/pr-review.md
 - Security review for code that touches files, shell commands, secrets, or auth.
 - Release readiness review for changelog, tests, docs, and migration notes.
 - Incident follow-up where the team needs competing explanations.
+
+## Do I Need Every CLI?
+
+No. Codex, Claude Code, Gemini Antigravity, and Grok are optional participants.
+For automated multi-agent runs, each CLI you want to call must be installed and
+authenticated in your local environment. If a tool is missing, keep going with
+the remaining tools or copy prompts into web/app UIs.
+
+Useful modes:
+
+- **Full council**: Codex, Claude, Gemini, and Grok.
+- **Two-agent council**: Codex plus one other agent.
+- **Single-agent council**: run separate implementation, security, maintainer
+  experience, and counterfactual passes.
 
 ## OpenAI Codex Fit
 
