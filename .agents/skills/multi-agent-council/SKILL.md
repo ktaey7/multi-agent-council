@@ -67,6 +67,11 @@ round; only debate when reviews diverge or the user asks.
    scripts/council-runner.sh --execute --prompts-dir <dir> --agents <same-set>
    ```
 
+   This creates a new `.council-runs/<ts>/` directory (it does not overwrite
+   round 1). Read the round-2 replies from that new dir's `outputs/<agent>.md`,
+   and synthesize from both rounds. Pass `--out <path>` if you want to choose
+   where round 2 lands.
+
 6. **Synthesize.** Produce the comparison table (codenames) and a
    maintainer-owned decision record. Restore real model names only in the
    dissent section.

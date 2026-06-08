@@ -44,7 +44,7 @@ def test_prompts_from_dir_missing_directory_errors(tmp_path):
         mod.prompts_from_dir(tmp_path / "nope", None)
 
 
-def test_prompts_from_dir_returns_agent_order_for_shuffled_request(tmp_path):
+def test_prompts_from_dir_preserves_requested_order(tmp_path):
     mod = _load()
     (tmp_path / "codex.md").write_text("c", encoding="utf-8")
     (tmp_path / "grok.md").write_text("g", encoding="utf-8")

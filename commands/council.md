@@ -19,7 +19,8 @@ Execution** flow:
 3. Anonymize reviews with codenames; build the comparison table without stating
    the consensus ratio.
 4. Run one cross-examination round only if reviews diverge or `$ARGUMENTS`
-   contains `--debate`, using `scripts/council-runner.sh --execute --prompts-dir`.
+   contains `--debate`, using `scripts/council-runner.sh --execute --prompts-dir`
+   (this writes a new `.council-runs/<ts>/`; read round-2 replies from there).
 5. Synthesize a decision record (Decision / Why / Alternatives / Risks / dissent
    with real names / Follow-up).
 6. If fewer agents are available or one fails, continue and note

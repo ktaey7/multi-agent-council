@@ -88,6 +88,15 @@ install_one() {
     else
       echo "uninstalled $app skill: $dest"
     fi
+    if [ "$app" = "claude" ]; then
+      local cmd_dest="${CLAUDE_COMMANDS_DIR:-$HOME/.claude/commands}/council.md"
+      run rm -f "$cmd_dest"
+      if [ "$dry_run" -eq 1 ]; then
+        echo "would uninstall claude command: $cmd_dest"
+      else
+        echo "uninstalled claude command: $cmd_dest"
+      fi
+    fi
     return
   fi
 
