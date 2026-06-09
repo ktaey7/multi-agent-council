@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.2 - 2026-06-08
+
+- Added **Claude Code plugin packaging** (`.claude-plugin/marketplace.json` + `plugin.json`) so the council installs via `/plugin marketplace add ktaey7/multi-agent-council` with no clone. The skill loads from its existing `.agents/skills/` path (no duplicate copy).
+- Sharpened positioning in the README with a **"What This Is — and Isn't"** section: this is a review/decision protocol with bias controls, not a build-orchestration harness.
+- Added **KNOWN_ISSUES.md** documenting scope, execution prerequisites, the `agy` argv limit, data exposure, and platform/testing caveats.
+- Added **drift-guard tests** that fail if the slash command, skill, runner flags, or README positioning fall out of sync.
+
 ## 0.3.1 - 2026-06-08
 
 - **Honest auto-mode reporting**: `--execute --agents auto` now lists skipped CLIs and prints a truthful `X ok / Y failed of N run; M skipped` summary instead of a misleading `Executed 1/1 agents successfully`. Records `configured`/`skipped` in metadata and warns on single-agent runs.

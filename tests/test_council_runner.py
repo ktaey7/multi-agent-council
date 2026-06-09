@@ -142,3 +142,36 @@ def test_run_agent_oserror_on_missing_binary(tmp_path, monkeypatch):
     res = mod.run_agent("claude", tmp_path, prompt, out, 5, False)
     assert res["status"] == "failed"
     assert "Failed to start" in out.read_text()
+
+
+# --- Documentation/flag consistency (drift guards) ---------------------------
+# These keep the slash command, skill, runner flags, and README from drifting
+# apart, the way an invariant check would. Cheap to run, and they fail loudly if
+# someone renames a flag or moves a section without updating the others.
+
+def _read(*parts):
+    return (ROOT.joinpath(*parts)).read_text(encoding="utf-8")
+
+
+def test_command_references_skill():
+    text = _read("commands", "council.md")
+    assert "SKILL.md" in text
+    assert "$ARGUMENTS" in text
+
+
+def test_skill_defines_turnkey_and_prompts_dir():
+    text = _read(".agents", "skills", "multi-agent-council", "SKILL.md")
+    assert "## Turnkey Execution" in text
+    assert "--prompts-dir" in text
+
+
+def test_prompts_dir_flag_is_real():
+    # The docs tell users to pass --prompts-dir; the runner must actually define it.
+    runner_src = RUNNER.read_text(encoding="utf-8")
+    assert '"--prompts-dir"' in runner_src
+
+
+def test_readme_keeps_the_differentiation():
+    text = _read("README.md").lower()
+    assert "what this is" in text
+    assert "build-orchestration harness" in text

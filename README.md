@@ -12,6 +12,24 @@ The goal is not to make agents vote. The goal is to reduce single-agent bias by
 using model diversity: independent reviews, explicit dissent, counterfactual
 rounds, and evidence-weighted synthesis.
 
+## What This Is — and Isn't
+
+Multi-Agent Council is for **deciding**, not building. It takes a question —
+should this PR merge? is this architecture sound? is this change safe? — runs
+several agents as independent reviewers, has them debate under explicit bias
+controls, and ends with a maintainer-owned decision record.
+
+It is **not** a build-orchestration harness. It does not delegate coding tasks to
+worker agents, manage a task lifecycle, or write your code. If you want agents to
+*produce* work — implement, refactor, scaffold — use an orchestration framework;
+use a council to *evaluate* the result. The two compose cleanly: orchestrate to
+build, council to decide.
+
+What makes a council more than parallel prompting is the **bias controls** —
+codename anonymization, hiding the consensus ratio, rotating speaking order, and
+`PASS` as the convergence signal — that stop independent reviewers from
+collapsing back into one anchored opinion.
+
 ## Why This Exists
 
 Different agents have different strengths, blind spots, context handling, tool
@@ -85,6 +103,17 @@ participant CLIs installed, use the manual protocol below — or omit `--execute
 to stage prompts you can paste into web/app UIs.
 
 ## Quick Start
+
+Install as a Claude Code plugin (no clone needed):
+
+```text
+/plugin marketplace add ktaey7/multi-agent-council
+/plugin install multi-agent-council@multi-agent-council
+```
+
+This loads the skill and a council command (namespaced as
+`/multi-agent-council:council`). To install the bare `/council` command and the
+skill without the plugin system, use `scripts/install-skill.sh` below.
 
 Install as a Codex skill:
 

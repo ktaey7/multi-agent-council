@@ -1,0 +1,24 @@
+{
+  "name": "multi-agent-council",
+  "version": "0.3.1",
+  "description": "Evidence-first multi-agent review and decision protocol. Run /council to have several coding agents review a question independently, debate under bias controls (codename anonymization, hidden consensus ratio, rotated order, PASS-to-converge), and produce a maintainer-owned decision record.",
+  "author": {
+    "name": "ktaey7"
+  },
+  "homepage": "https://github.com/ktaey7/multi-agent-council",
+  "repository": "https://github.com/ktaey7/multi-agent-council",
+  "license": "MIT",
+  "keywords": [
+    "multi-agent",
+    "code-review",
+    "decision-record",
+    "cross-validation",
+    "debate",
+    "codex",
+    "claude",
+    "maintainer"
+  ],
+  "skills": [
+    "./.agents/skills/"
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "name": "multi-agent-council",
+  "description": "Evidence-first multi-agent review and decision workflows for maintainers who use multiple coding agents.",
+  "owner": {
+    "name": "ktaey7",
+    "url": "https://github.com/ktaey7"
+  },
+  "plugins": [
+    {
+      "name": "multi-agent-council",
+      "source": ".",
+      "description": "Run an evidence-first council (/council): several agents review independently, debate under bias controls, and produce a maintainer-owned decision record. Review and decide — not build-orchestration."
+    }
+  ]
+}
